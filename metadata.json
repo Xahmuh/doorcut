@@ -1,0 +1,7 @@
+{
+  "name": "Doorcut - Premium Barbers at Your Door",
+  "description": "A high-end, AI-powered barber booking application with virtual try-ons, subscription plans, and loyalty rewards.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
