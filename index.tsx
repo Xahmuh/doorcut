@@ -14,18 +14,15 @@ import WalletView from './components/WalletView';
 import NotificationsView from './components/NotificationsView';
 import SignupView from './components/SignupView';
 import LoginView from './components/LoginView';
-import AdminView from './components/AdminView';
 
 export type Language = 'en' | 'ar';
 type Tab = 'home' | 'bookings' | 'explore' | 'profile' | 'rewards';
-type ViewState = 'landing' | 'app' | 'booking' | 'chat' | 'wallet' | 'notifications' | 'signup' | 'login' | 'admin';
+type ViewState = 'landing' | 'app' | 'booking' | 'chat' | 'wallet' | 'notifications' | 'signup' | 'login';
 
 const App = () => {
-  const [lang, setLang] = useState<Language>('ar'); 
+  const [lang, setLang] = useState<Language>('ar'); // Default to Arabic for Bahrain launch
   const [viewState, setViewState] = useState<ViewState>('landing');
   const [activeTab, setActiveTab] = useState<Tab>('home');
-  const [preSelectedServiceId, setPreSelectedServiceId] = useState<string | null>(null);
-  const [activePlanId, setActivePlanId] = useState<string>('p3'); // Default to Sharpest/Gold
 
   useEffect(() => {
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
@@ -43,17 +40,6 @@ const App = () => {
     setViewState('app');
   };
 
-  const handleLogout = () => {
-    sessionStorage.removeItem('hasVisited');
-    setViewState('landing');
-    setActiveTab('home');
-  };
-
-  const handleBookNow = (serviceId?: string) => {
-    setPreSelectedServiceId(serviceId || null);
-    setViewState('booking');
-  };
-
   const renderContent = () => {
     if (viewState === 'landing') {
       return <LandingView lang={lang} setLang={setLang} onEnter={handleEnter} onLogin={() => setViewState('login')} />;
@@ -67,24 +53,15 @@ const App = () => {
       return <LoginView lang={lang} onBack={() => setViewState('landing')} onSuccess={handleLoginSuccess} onSignup={() => setViewState('signup')} />;
     }
 
-    if (viewState === 'admin') {
-      return <AdminView lang={lang} onBack={() => setViewState('app')} />;
-    }
-
     if (viewState === 'booking') {
       return (
         <BookingFlow 
           lang={lang}
-          initialServiceId={preSelectedServiceId || undefined}
           onComplete={() => {
-            setPreSelectedServiceId(null);
             setViewState('app');
             setActiveTab('bookings');
           }} 
-          onBack={() => {
-            setPreSelectedServiceId(null);
-            setViewState('app');
-          }} 
+          onBack={() => setViewState('app')} 
         />
       );
     }
@@ -99,37 +76,31 @@ const App = () => {
           <HomeView 
             lang={lang}
             setLang={setLang}
-            onBookNow={() => handleBookNow()} 
+            onBookNow={() => setViewState('booking')} 
             onChat={() => setViewState('chat')}
             onNotifications={() => setViewState('notifications')}
-            onLogout={handleLogout}
           />
         );
       case 'bookings':
         return <BookingsView lang={lang} onChat={() => setViewState('chat')} />;
       case 'explore':
-        return <ExploreView lang={lang} onBookNow={(serviceId) => handleBookNow(serviceId)} />;
+        return <ExploreView lang={lang} onBookNow={() => setViewState('booking')} />;
       case 'rewards':
         return <RewardsView lang={lang} />;
       case 'profile':
         return (
           <ProfileView 
             lang={lang}
-            activePlanId={activePlanId}
-            onUpdatePlan={setActivePlanId}
             onWallet={() => setViewState('wallet')}
             onChat={() => setViewState('chat')}
-            onAdmin={() => setViewState('admin')}
-            onLogout={handleLogout}
           />
         );
       default:
-        return <HomeView lang={lang} setLang={setLang} onBookNow={() => handleBookNow()} onChat={() => setViewState('chat')} onNotifications={() => setViewState('notifications')} onLogout={handleLogout} />;
+        return <HomeView lang={lang} setLang={setLang} onBookNow={() => setViewState('booking')} onChat={() => setViewState('chat')} onNotifications={() => setViewState('notifications')} />;
     }
   };
 
   if (viewState === 'landing') return <LandingView lang={lang} setLang={setLang} onEnter={handleEnter} onLogin={() => setViewState('login')} />;
-  if (viewState === 'admin') return renderContent();
 
   return (
     <Layout 

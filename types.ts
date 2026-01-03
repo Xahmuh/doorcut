@@ -15,7 +15,6 @@ export interface Service {
   id: string;
   name: string;
   description: string;
-  idealFor?: string; 
   price: number;
   duration: number;
   image?: string;
@@ -43,11 +42,9 @@ export interface Booking {
 export interface Plan {
   id: string;
   name: string;
-  price: number | string;
+  price: number;
   features: string[];
   isPopular?: boolean;
-  isVIP?: boolean;
-  category: 'Individual' | 'Family' | 'Business';
   ctaText: string;
 }
 
